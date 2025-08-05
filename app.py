@@ -2,13 +2,13 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model_data = joblib.load("recommandation2.sav")
-new_df = model_data['new_df']
-similarity = model_data['similarity']
+model = joblib.load("recommandation2.sav")
+similarity = model[0]
+movies = model[1]
 
 st.set_page_config(
-    page_title=" Movie Recommender",
-    page_icon=" ",
+    page_title="🎬 Movie Recommender",
+    page_icon="🎥",
     layout="centered"
 )
 
@@ -40,17 +40,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div class='main-title'> Movie Recommender</div>", unsafe_allow_html=True)
+st.markdown("<div class='main-title'>🎬 Movie Recommender</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>Select a movie and get top 5 similar movie recommendations!</div>", unsafe_allow_html=True)
 
-movie_list = new_df['title'].values
-selected_movie = st.selectbox("Select a Movie", movie_list)
+movie_list = movies['title'].values
+selected_movie = st.selectbox("📽️ Select a Movie", movie_list)
 
 def recommend(movie):
-    index = new_df[new_df['title'] == movie].index[0]
+    index = movies[movies['title'] == movie].index[0]
     distances = similarity[index]
-    recommended_movies = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-    return [new_df.iloc[i[0]].title for i in recommended_movies]
+    recommended = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    return [movies.iloc[i[0]].title for i in recommended]
 
 if st.button("Recommend"):
     recommendations = recommend(selected_movie)
