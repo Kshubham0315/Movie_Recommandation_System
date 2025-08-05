@@ -2,9 +2,9 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model = joblib.load("recommandation2.sav")
-similarity = model[0]
-movies = model[1]
+data = joblib.load("recommandation2.sav")
+similarity = data['similarity']
+movies = data['movies']
 
 st.set_page_config(
     page_title="🎬 Movie Recommender",
@@ -14,9 +14,6 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-        body {
-            background-color: #f4f4f4;
-        }
         .main-title {
             font-size: 48px;
             text-align: center;
@@ -52,10 +49,10 @@ def recommend(movie):
     recommended = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
     return [movies.iloc[i[0]].title for i in recommended]
 
-if st.button("Recommend"):
+if st.button("🎯 Recommend"):
     recommendations = recommend(selected_movie)
     st.markdown("<div class='recommend-box'>", unsafe_allow_html=True)
-    st.subheader("Recommended Movies:")
+    st.subheader("📢 Recommended Movies:")
     for i, movie in enumerate(recommendations, 1):
         st.markdown(f"**{i}.** {movie}")
     st.markdown("</div>", unsafe_allow_html=True)
