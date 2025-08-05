@@ -1,28 +1,29 @@
 import streamlit as st
 import pickle
 
-# Load model
-with open('recommandation2.sav', 'rb') as file:
-    model = pickle.load(file)
+# Load the movie DataFrame
+with open('recommandation2.sav', 'rb') as f:
+    new_df = pickle.load(f)
 
-# Load movie list (if not part of model)
-# Agar model ke andar movie list nahi toh use is tarah alag load karna padega
-# with open('movies.pkl', 'rb') as f:
-#     movie_list = pickle.load(f)
+# Load the similarity matrix
+with open('recommandation.sav', 'rb') as f:
+    similarity = pickle.load(f)
 
-# Dummy movie list (replace with actual one)
-movie_list = ['Avatar', 'Inception', 'The Dark Knight', 'Interstellar', 'Titanic']
+# Recommend function
+def recommend(movie):
+    movie_index = new_df[new_df['title'] == movie].index[0]
+    distances = similarity[movie_index]
+    movie_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    return [new_df.iloc[i[0]].title for i in movie_list]
 
 # Streamlit UI
+st.set_page_config(page_title="Movie Recommender", layout="centered")
 st.title("🎬 Movie Recommendation System")
 
-selected_movie = st.selectbox("Choose a movie", movie_list)
+selected_movie = st.selectbox("Choose a movie", new_df['title'].values)
 
 if st.button("Get Recommendations"):
-    try:
-        recommendations = model.recommend(selected_movie)
-        st.subheader("Top 5 Similar Movies:")
-        for i, movie in enumerate(recommendations):
-            st.write(f"{i+1}. {movie}")
-    except Exception as e:
-        st.error(f"Error: {e}")
+    recommendations = recommend(selected_movie)
+    st.subheader("Top 5 Recommended Movies:")
+    for i, movie in enumerate(recommendations, 1):
+        st.write(f"{i}. {movie}")
