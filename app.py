@@ -1,30 +1,28 @@
 import streamlit as st
-import joblib
+import pickle
 
-data = joblib.load("recommandation2.sav")
+# Load model
+with open('recommandation2.sav', 'rb') as file:
+    model = pickle.load(file)
 
-# Check what's inside the loaded file
-st.write("Model data type:", type(data))
+# Load movie list (if not part of model)
+# Agar model ke andar movie list nahi toh use is tarah alag load karna padega
+# with open('movies.pkl', 'rb') as f:
+#     movie_list = pickle.load(f)
 
-if isinstance(data, dict):
-    st.write("Keys in model:", list(data.keys()))
+# Dummy movie list (replace with actual one)
+movie_list = ['Avatar', 'Inception', 'The Dark Knight', 'Interstellar', 'Titanic']
 
-    if 'similarity' in data and 'movies' in data:
-        similarity = data['similarity']
-        movies = data['movies']
+# Streamlit UI
+st.title("🎬 Movie Recommendation System")
 
-        selected_movie = st.selectbox("Select a movie", movies['title'].values)
+selected_movie = st.selectbox("Choose a movie", movie_list)
 
-        def recommend(movie):
-            index = movies[movies['title'] == movie].index[0]
-            distances = similarity[index]
-            recommended = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-            return [movies.iloc[i[0]].title for i in recommended]
-
-        if st.button("Recommend"):
-            for i in recommend(selected_movie):
-                st.write(i)
-    else:
-        st.error("Model file does not contain 'similarity' or 'movies' keys.")
-else:
-    st.error("Model file is not in expected dictionary format.")
+if st.button("Get Recommendations"):
+    try:
+        recommendations = model.recommend(selected_movie)
+        st.subheader("Top 5 Similar Movies:")
+        for i, movie in enumerate(recommendations):
+            st.write(f"{i+1}. {movie}")
+    except Exception as e:
+        st.error(f"Error: {e}")
