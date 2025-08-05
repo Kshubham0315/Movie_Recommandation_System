@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-model_data = joblib.load("recommandation.sav")
+model_data = joblib.load("recommandation2.sav")
 new_df = model_data['new_df']
 similarity = model_data['similarity']
 
